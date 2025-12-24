@@ -1,0 +1,32 @@
+def generate_summary(memory, eligible_schemes):
+    lines = []
+    lines.append("FINAL USER DETAILS AND ELIGIBILITY\n")
+
+    lines.append(f"Age: {memory['age']}")
+    lines.append(f"Annual Income: {memory['income']}")
+    lines.append(f"Gender: {memory['gender']}")
+
+    if memory.get("is_widow") is not None:
+        widow_status = "Yes" if memory["is_widow"] else "No"
+        lines.append(f"Widow Status: {widow_status}")
+
+    lines.append("\nEligible Schemes:")
+    if eligible_schemes:
+        for scheme in eligible_schemes:
+            lines.append(f"- {SCHEME_NAME_MAP.get(scheme, scheme)}")
+    else:
+        lines.append("- None")
+
+    return "\n".join(lines)
+
+final_schemes = []
+
+for entry in reversed(conversation_log):
+    if entry.get("speaker") == "system":
+        result = entry.get("eligible_schemes")
+        if isinstance(result, dict) and "eligible_schemes" in result:
+            final_schemes = result["eligible_schemes"]
+            break
+
+
+print(generate_summary(memory, final_schemes))

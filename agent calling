@@ -1,0 +1,113 @@
+def agent_turn(audio_path=None):
+
+    if audio_path is None and not memory.get("started", False):
+        memory["started"] = True
+        speak_and_log(
+            "స్కీమ్ వాయిస్‌కు స్వాగతం. "
+            "ప్రభుత్వ పథకాల అర్హత తెలుసుకోవడానికి నేను మీకు సహాయం చేస్తాను. "
+            "దయచేసి నేను అడిగే ప్రశ్నలకు స్పష్టంగా సమాధానం ఇవ్వండి."
+        )
+        return
+
+    if audio_path is None and memory["last_slot_asked"] is not None:
+        slot = memory["last_slot_asked"]
+
+        if slot == "age":
+            speak_and_log("మీ వయసు స్పష్టంగా చెప్పండి. ఉదాహరణకు: 65")
+        elif slot == "income":
+            speak_and_log("మీ ఆదాయం స్పష్టంగా చెప్పండి. ఉదాహరణకు: 200000")
+        elif slot == "gender":
+            speak_and_log("దయచేసి పురుషుడు లేదా మహిళ అని చెప్పండి.")
+        elif slot == "is_widow":
+            speak_and_log("దయచేసి అవును లేదా కాదు అని చెప్పండి.")
+
+        return
+
+    if audio_path is None:
+        action = planner(memory)
+
+        if action == "ASK_AGE":
+            speak_and_log("మీ వయసు ఎంత?")
+        elif action == "ASK_INCOME":
+            speak_and_log("మీ వార్షిక ఆదాయం ఎంత?")
+        elif action == "ASK_GENDER":
+            speak_and_log("మీ లింగం ఏమిటి? పురుషుడు లేదా మహిళ?")
+        elif action == "ASK_WIDOW_STATUS":
+            speak_and_log(
+                "వితంతు పెన్షన్ అర్హతను తెలుసుకోవడానికి ఒక చిన్న సమాచారం కావాలి. "
+                "మీ భర్త జీవించి ఉన్నారా లేదా మరణించారా? "
+                "దయచేసి అవును లేదా కాదు అని చెప్పండి."
+            )
+        return
+
+    play_user_audio(audio_path)
+
+    user_text = speech_to_text(audio_path)
+    if user_text is None:
+        speak_and_log("క్షమించండి, స్పష్టంగా వినిపించలేదు. మళ్ళీ చెప్పండి.")
+        return
+
+    if memory["last_slot_asked"] is None:
+        is_scope, _ = scope_detector.is_in_scope(user_text)
+        if not is_scope:
+            speak_and_log(
+                "క్షమించండి, నేను ప్రభుత్వ పథకాల గురించి మాత్రమే సహాయం చేయగలను. "
+                "పెన్షన్లు, స్కాలర్‌షిప్‌లు, పథకాల గురించి అడగండి."
+            )
+            return
+
+    conversation_log.append({
+        "speaker": "user",
+        "text": user_text,
+        "audio": audio_path
+    })
+
+    if memory["last_slot_asked"] is not None:
+        success, msg = update_memory(user_text, memory)
+
+        if not success:
+            memory["retry_count"] += 1
+            if memory["retry_count"] >= 2:
+                speak_and_log(
+                    "స్పష్టంగా వినిపించడం లేదు. దయచేసి సంఖ్యలలో చెప్పండి. ఉదాహరణకు: 65"
+                )
+            else:
+                speak_and_log(msg)
+            return
+
+        if msg:
+            speak_and_log(msg)
+            return
+
+    if memory["last_slot_asked"] is not None:
+        return
+
+    action = planner(memory)
+
+    if action == "ASK_AGE":
+        speak_and_log("మీ వయసు ఎంత?")
+    elif action == "ASK_INCOME":
+        speak_and_log("మీ వార్షిక ఆదాయం ఎంత?")
+    elif action == "ASK_GENDER":
+        speak_and_log("మీ లింగం ఏమిటి? పురుషుడు లేదా మహిళ?")
+    elif action == "ASK_WIDOW_STATUS":
+        speak_and_log(
+            "వితంతు పెన్షన్ అర్హతను తెలుసుకోవడానికి ఒక చిన్న సమాచారం కావాలి. "
+            "మీ భర్త జీవించి ఉన్నారా లేదా మరణించారా? "
+            "దయచేసి అవును లేదా కాదు అని చెప్పండి."
+        )
+    elif action == "CHECK_ELIGIBILITY":
+        result = executor(action, memory)
+
+        conversation_log.append({
+            "speaker": "system",
+            "eligible_schemes": result
+        })
+
+        final_response = evaluator(result)
+        speak_and_log(final_response)
+
+        speak_and_log(
+            "స్కీమ్ వాయిస్‌ను ఉపయోగించినందుకు ధన్యవాదాలు. "
+            "మీకు ఇంకా ఏమైనా సహాయం కావాలంటే ఇక్కడ అడగండి."
+        )

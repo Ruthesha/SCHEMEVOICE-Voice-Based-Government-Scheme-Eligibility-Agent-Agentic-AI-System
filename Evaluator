@@ -1,0 +1,31 @@
+def evaluator(result: Dict) -> str:
+    """
+    IMPROVED EVALUATOR - Formats final response
+    """
+    if not result or not result.get("eligible_schemes"):
+        return "క్షమించండి, మీ వివరాల ఆధారంగా ప్రస్తుతం ఎలాంటి పథకాలకు అర్హత లేదు."
+
+    schemes = result["eligible_schemes"]
+    details = result["scheme_details"]
+
+    response = f"మీకు {len(schemes)} పథకాలకు అర్హత ఉంది:\n\n"
+
+    for scheme in schemes:
+        info = details.get(scheme, {})
+        response += f"{scheme}\n"
+        response += f"వివరణ: {info.get('description', 'సమాచారం అందుబాటులో లేదు')}\n"
+
+        if "benefits" in info:
+            response += f"లభించే ప్రయోజనాలు: {info['benefits']}\n"
+
+        if "apply_at" in info:
+            response += f"దరఖాస్తు స్థలం: {info['apply_at']}\n"
+
+        if "documents" in info:
+            docs = info["documents"]
+            if isinstance(docs, list):
+                response += f"అవసరమైన పత్రాలు: {', '.join(docs)}\n"
+
+        response += "\n"
+
+    return response

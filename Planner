@@ -1,0 +1,29 @@
+def planner(memory: Dict, user_text: Optional[str] = None) -> str:
+
+    needs_widow_status = (
+        memory["gender"] == "female"
+        and memory["is_widow"] is None
+    )
+
+    if memory["age"] is None:
+        memory["last_slot_asked"] = "age"
+        print("[PLANNER] Decision: ASK_AGE")
+        return "ASK_AGE"
+
+    if memory["income"] is None:
+        memory["last_slot_asked"] = "income"
+        print("[PLANNER] Decision: ASK_INCOME")
+        return "ASK_INCOME"
+
+    if memory["gender"] is None:
+        memory["last_slot_asked"] = "gender"
+        print("[PLANNER] Decision: ASK_GENDER")
+        return "ASK_GENDER"
+
+    if needs_widow_status:
+        memory["last_slot_asked"] = "is_widow"
+        print("[PLANNER] Decision: ASK_WIDOW_STATUS")
+        return "ASK_WIDOW_STATUS"
+
+    print("[PLANNER] Decision: CHECK_ELIGIBILITY (all info collected)")
+    return "CHECK_ELIGIBILITY"

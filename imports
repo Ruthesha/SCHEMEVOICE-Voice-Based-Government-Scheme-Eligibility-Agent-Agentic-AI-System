@@ -1,0 +1,8 @@
+from traitlets.traitlets import Tuple
+import whisper
+import re
+from gtts import gTTS
+from IPython.display import Audio, display
+from pydub import AudioSegment
+from typing import Tuple, Optional, List, Dict
+import os

@@ -1,0 +1,31 @@
+def speech_to_text(audio_path):
+    try:
+        result = stt_model.transcribe(
+            audio_path,
+            language="te",
+            task="transcribe",
+            fp16=False
+        )
+        text = result["text"].strip()
+
+        if text is None or len(text) < 2:
+            return None
+
+        return text
+
+    except Exception as e:
+        print("STT Error:", e)
+        return None
+
+def speak_telugu(text: str, filename: str = "response.mp3"):
+    print(f"[AGENT]: {text}")
+    tts = gTTS(text=text, lang="te", slow=False)
+    tts.save(filename)
+    display(Audio(filename))
+
+def speak_and_log(text: str):
+    conversation_log.append({
+        "speaker": "agent",
+        "text": text
+    })
+    speak_telugu(text)

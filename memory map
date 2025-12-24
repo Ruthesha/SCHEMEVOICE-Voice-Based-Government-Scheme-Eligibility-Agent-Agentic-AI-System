@@ -1,0 +1,12 @@
+memory = {
+    "age": None,
+    "income": None,
+    "gender": None,
+    "is_widow": None,
+    "last_slot_asked": None,
+    "retry_count": 0,
+    "started": False,
+    "conversation_history": [],  
+    "user_clarifications": {}    
+}
+conversation_log = []

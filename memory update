@@ -1,0 +1,30 @@
+def update_memory(user_text: str, memory: Dict) -> Tuple[bool, Optional[str]]:
+    slot = memory["last_slot_asked"]
+
+    if slot == "age":
+        new_age = extract_age(user_text)
+        if new_age is None:
+            return False, "మీ వయసు స్పష్టంగా చెప్పండి. ఉదాహరణకు: 65"
+        memory["age"] = new_age
+
+    elif slot == "income":
+        new_income = extract_income(user_text)
+        if new_income is None:
+            return False, "మీ ఆదాయం స్పష్టంగా చెప్పండి. ఉదాహరణకు: 200000"
+        memory["income"] = new_income
+
+    elif slot == "gender":
+        gender = extract_gender(user_text)
+        if gender is None:
+            return False, "దయచేసి పురుషుడు లేదా మహిళ అని చెప్పండి."
+        memory["gender"] = gender
+
+    elif slot == "is_widow":
+        status = extract_widow_status(user_text)
+        if status is None:
+            return False, "దయచేసి అవును లేదా కాదు అని చెప్పండి."
+        memory["is_widow"] = status
+
+    memory["last_slot_asked"] = None
+    memory["retry_count"] = 0
+    return True, None

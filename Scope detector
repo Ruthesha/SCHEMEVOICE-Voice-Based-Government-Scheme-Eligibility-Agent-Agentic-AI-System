@@ -1,0 +1,34 @@
+class ScopeDetector:
+
+    def __init__(self):
+        self.in_scope_keywords = [
+            "పథకం", "scheme", "pension", "పెన్షన్",
+            "స్కాలర్షిప్", "scholarship", "అర్హత", "eligibility",
+            "దరఖాస్తు", "application", "apply",
+            "ప్రభుత్వం", "government"
+        ]
+
+        self.out_of_scope_keywords = [
+            "weather", "వాతావరణం", "cricket", "క్రికెట్",
+            "movie", "సినిమా", "recipe", "వంటకం",
+            "song", "పాట"
+        ]
+
+    def is_in_scope(self, text: str) -> Tuple[bool, float]:
+
+        text_lower = text.lower()
+
+        out_score = sum(1 for kw in self.out_of_scope_keywords if kw in text_lower)
+        if out_score > 0:
+            print(f"[SCOPE CHECK] Out-of-scope detected: {text[:50]}...")
+            return False, 0.9
+
+        in_score = sum(1 for kw in self.in_scope_keywords if kw in text_lower)
+        if in_score > 0:
+            print(f"[SCOPE CHECK] In-scope: {text[:50]}...")
+            return True, 0.9
+
+        print(f"[SCOPE CHECK] Ambiguous (defaulting to in-scope): {text[:50]}...")
+        return True, 0.5
+
+scope_detector = ScopeDetector()

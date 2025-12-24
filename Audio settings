@@ -1,0 +1,20 @@
+def play_user_audio(audio_path):
+    print("Playing user response:")
+    display(Audio(filename=audio_path))
+
+#audio conversion
+
+for file in os.listdir():
+    if file.endswith(".m4a"):
+        wav_file = file.replace(".m4a", ".wav")
+        AudioSegment.from_file(file, format="m4a").export(wav_file, format="wav")
+        print("Converted:", file, "→", wav_file)
+
+#runconvo
+def run_conversation(audio_sequence):
+
+    speak_telugu("మీ వయసు ఎంత?")
+
+    for audio in audio_sequence:
+        play_user_audio(audio)
+        agent_turn(audio)

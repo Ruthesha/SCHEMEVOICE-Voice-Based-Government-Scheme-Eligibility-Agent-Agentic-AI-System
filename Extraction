@@ -1,0 +1,61 @@
+def extract_age(text: str) -> Optional[int]:
+    numbers = re.findall(r'\d+', text)
+    if numbers:
+        age = int(numbers[0])
+        if 0 < age < 120:
+            return age
+
+    age = words_to_number(text)
+    if age and 0 < age < 120:
+        return age
+
+    return None
+    
+def extract_income(text: str) -> Optional[int]:
+    text = text.replace(",", "").replace(".", "")
+    text = text.replace("రూపాయలు", "")
+
+    numbers = re.findall(r'\d+', text)
+    if numbers:
+        income = int(numbers[0])
+        if income > 0:
+            return income
+
+    income = words_to_number(text)
+    if income and income > 0:
+        return income
+
+    return None
+
+def extract_gender(text: str) -> Optional[str]:
+    text_lower = text.lower()
+
+    male_keywords = ["పురుషుడు", "male", "man", "boy", "మగ"]
+    female_keywords = ["మహిళ", "mahila", "female", "woman", "girl", "స్త్రీ"]
+
+    if any(k in text_lower for k in male_keywords):
+        return "male"
+    if any(k in text_lower for k in female_keywords):
+        return "female"
+
+    return None
+
+def extract_widow_status(text):
+    text = text.lower().strip()
+
+    if "అవును" in text or "yes" in text or "Avo no":
+        return True
+
+    if (
+        "కాదు" in text or
+        "లేదు" in text or
+        "లేదూ" in text or
+        "ledu" in text or
+        "ledhu" in text or
+        "ledo" in text or
+        "no" in text
+    ):
+        return False
+
+    return None
+
